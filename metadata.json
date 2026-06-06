@@ -1,0 +1,6 @@
+{
+  "name": "FarmGuard AI",
+  "description": "An AI-powered operating system for farmers. It turns raw weather data into actionable farming decisions such as planting, spraying pesticides, and harvesting.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,74 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['userId', 'email', 'createdAt'])
+        && data.userId is string && data.userId.size() <= 128
+        && data.email is string && data.email.size() <= 256
+        && data.createdAt == request.time
+        && data.userId == request.auth.uid
+        && (!('name' in data) || (data.name is string && data.name.size() <= 128))
+        && (!('phone' in data) || (data.phone is string && data.phone.size() <= 32));
+    }
+
+    function isValidUserUpdate(data) {
+       return (!('name' in data) || (data.name is string && data.name.size() <= 128))
+           && (!('phone' in data) || (data.phone is string && data.phone.size() <= 32));
+    }
+
+    match /users/{userId} {
+      allow get: if request.auth != null && request.auth.uid == userId;
+      allow list: if false; 
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && request.auth.uid == userId;
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+
+    function isValidFarm(data) {
+      return data.keys().hasAll(['ownerId', 'name', 'crop', 'latitude', 'longitude', 'createdAt', 'updatedAt'])
+        && data.ownerId is string && data.ownerId.size() <= 128
+        && data.ownerId == request.auth.uid
+        && data.name is string && data.name.size() <= 128
+        && data.crop is string && data.crop.size() <= 128
+        && data.latitude is number
+        && data.longitude is number
+        && data.createdAt == request.time
+        && data.updatedAt == request.time;
+    }
+
+    function isValidFarmUpdate(data) {
+      return (!('name' in data) || (data.name is string && data.name.size() <= 128))
+        && (!('crop' in data) || (data.crop is string && data.crop.size() <= 128))
+        && (!('latitude' in data) || data.latitude is number)
+        && (!('longitude' in data) || data.longitude is number)
+        && (!('updatedAt' in data) || data.updatedAt == request.time);
+    }
+
+    match /farms/{farmId} {
+      allow read: if request.auth != null && resource.data.ownerId == request.auth.uid;
+      allow create: if request.auth != null && incoming().ownerId == request.auth.uid;
+      allow update: if request.auth != null && resource.data.ownerId == request.auth.uid && incoming().ownerId == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
+    }
+  }
+}
