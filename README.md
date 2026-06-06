@@ -8,18 +8,18 @@ FarmGuard AI is a premium, smart agricultural intelligence platform that transla
 
 ```mermaid
 graph TD
-    subgraph Client App (React + Vite)
+    subgraph client_app ["Client App (React + Vite)"]
         A[Location Selector & Map Picker]
         B[Dashboard: Spray Windows & Risks]
         C[Drone Canopy AI Uploader]
         D[Floating Chat Assistant]
     end
 
-    subgraph Express Backend proxy (Node/TypeScript)
+    subgraph express_backend ["Express Backend Proxy (Node/TypeScript)"]
         Proxy[Server.ts Proxy Middleware]
     end
 
-    subgraph Remote Services
+    subgraph remote_services ["Remote Services"]
         WAI[Weather-AI Developers API]
         Gemini[Google Gemini API]
         FB[Firebase Firestore & Auth]
@@ -32,7 +32,7 @@ graph TD
 
     Proxy -->|v1/weather / v1/sms/alert / v1/trees/analyze| WAI
     Proxy -->|gemini-2.5-flash| Gemini
-    Client\ App -->|Read/Write Farm Configurations| FB
+    client_app -->|Read/Write Farm Configurations| FB
 ```
 
 ---
